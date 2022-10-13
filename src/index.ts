@@ -149,6 +149,8 @@ async function getIconName() {
 async function getConfig() {
   let {
     url,
+    ctoken,
+    EGG_SESS_ICONFONT,
     username,
     password,
     projectId,
@@ -156,8 +158,9 @@ async function getConfig() {
     language = 'js'
   } = require(getRootFilePath('./package.json')).autoIconfont ?? {}
   if (!judgeIsVaildUrl(url)) {
-    if (!username || !password || !projectId) throw new Error('iconfont 地址异常，并且项目信息和用户信息异常')
-    const iconfont = new IconFont({ username, password, projectId })
+    if (!username || !password || !projectId || (!EGG_SESS_ICONFONT && ctoken))
+      throw new Error('iconfont 地址异常，并且项目信息和用户信息异常')
+    const iconfont = new IconFont({ username, password, projectId, eggSessIconfont: EGG_SESS_ICONFONT, ctoken })
 
     await iconfont.init()
 

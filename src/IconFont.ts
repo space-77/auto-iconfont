@@ -11,6 +11,15 @@ const LOGIN_API = `${BASE_URL}/api/account/login.json`
 const CREATE_CDN = `${BASE_URL}/api/project/cdn.json`
 const PROJECT_DETAIL = `${BASE_URL}/api/project/detail.json`
 
+type IconFontConfig = {
+  password: string
+  projectId: string
+  username: string
+
+  ctoken?: string
+  eggSessIconfont?: string
+}
+
 export default class IconFont {
   page!: Page
   browser!: Browser
@@ -20,19 +29,31 @@ export default class IconFont {
   iconInfo: Record<string, string> | null = null
   eventList: Map<string, [Function, Function]> = new Map([])
 
+  ctoken?: string
+  eggSessIconfont?: string
+
   cookies: Record<string, string> = {}
 
-  constructor(config: { password: string; projectId: string; username: string }) {
-    const { password, projectId, username } = config
+  constructor(config: IconFontConfig) {
+    const { password, projectId, username, ctoken, eggSessIconfont } = config
     this.password = password
     this.username = username
     this.projectId = projectId
+
+    this.ctoken = ctoken
+    this.eggSessIconfont = eggSessIconfont
   }
 
   async init() {
-    await this.initBrowser()
-    this.listenPageChange()
-    this.login()
+    const { ctoken, eggSessIconfont } = this
+    if (ctoken && eggSessIconfont) {
+      this.cookies.ctoken = ctoken
+      this.cookies.EGG_SESS_ICONFONT = eggSessIconfont
+    } else {
+      await this.initBrowser()
+      this.listenPageChange()
+      this.login()
+    }
   }
 
   listenPageChange() {
@@ -180,7 +201,6 @@ export default class IconFont {
         await this.browser.close()
       }
     } catch (e) {
-
       // 登录成功没有返回响应实体，会导致报错，如果登录成功，跳过这个报错。
       const loginSuccessErrMsg =
         'ProtocolError: Could not load body for this request. This might happen if the request is a preflight request.'

@@ -44,6 +44,10 @@
   "keywords": [
     "iconfont"
   ],
+  "autoIconfont": {
+    "ctoken": "RqKrG0UwvmqTBx1T9_NLzSFv",
+    "EGG_SESS_ICONFONT": "729rLt9L4NLwWaKLvClEePxeTY07joE-TYg_1EPwFfcUGZXGEtX90shZ5f4SvwPtneEUb5fRPW8hxEUvrkZtHuCATl2R7Qg-XDO_kO5CHTTsnxMgN2wBwSUyaFCr2ATD5nznaeZTzSaEa4ZfMS_G4MOcVWKO2-aYNDy0fot4MrnIOKYTfHhOiGrBOVUxliyxT1c4o_9bdf82ci3RCH3cyJlcXgjZSyrLZiskfbxTqZfiqkk-c2R0SxXqzWg-GlTIwf2T29AQSb1uhhug4x5o-GDPipbuba_5siZftWsIDDKY7-O5OxFCunZ42K1rfVgZ"
+  },
   "prettier": {
     "semi": false,
     "tabWidth": 2,
