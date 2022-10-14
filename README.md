@@ -105,7 +105,7 @@ pnpm add -D auto-iconfont
 - 必传：`用户token 和 用户账号信息 方式必传`
 - 类型：String | Number
 - 默认：`-`
-- 说明：项目ID。
+- 说明：项目 ID。
 
 #### 生成文件类型
 
@@ -136,6 +136,7 @@ pnpm icon-build
 ```
 
 ## 生成文件说明
+
 <table>
   <tbody>
     <tr>
@@ -166,12 +167,18 @@ pnpm icon-build
 </table>
 
 ## 使用
+
 ### 引入
+
 把生成文件目录下的 `index.js` 或 `index.ts` 文件在项目入口文件引入即可，
+
 ```js
 // main.js
-import '@/assets/iconfont/iconfont'
+import icons from '@/assets/iconfont'
 ```
 
+如果是 Vue 项目，可以把 icons 混入到 Vue 原型，然后再把 ts 的类型提示加上，这样使用更方便，参考文章 [ts 扩展功能到 Vue 原型(this)上](https://www.jianshu.com/p/ecc240dd746d)
+
 ### 使用
-后续使用，请参考 [iconfont使用帮助](https://www.iconfont.cn/help/detail?helptype=code)
+
+后续使用，请参考 [iconfont 使用帮助](https://www.iconfont.cn/help/detail?helptype=code)
