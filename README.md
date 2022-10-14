@@ -59,7 +59,7 @@ pnpm add -D auto-iconfont
 
 ### 获取数据方式参数说明
 
-> 获取 iconfont 项目信息数据方式配置，共有三种方式获取数据，各种方式有不用的优缺点，选择一个适合自己的即可，多人项目 推荐使用 “用户 token” 方式，个人项目推荐使用 “用户账号信息” 方式
+> 获取 iconfont 项目信息数据方式配置，共有三种方式获取数据，各种方式有不用的优缺点，选择一个适合自己的即可。
 
 <table>
   <colgroup>
@@ -72,7 +72,7 @@ pnpm add -D auto-iconfont
   <tbody>
     <tr>
       <td data-col="0">配置方式</td>
-      <td data-col="1">配置方式</td>
+      <td data-col="1">配置参数</td>
       <td data-col="2">必选</td>
       <td data-col="3">优缺点</td>
       <td data-col="4">获取方式</td>
@@ -99,7 +99,7 @@ pnpm add -D auto-iconfont
       <td data-col="0">用户账号信息</td>
       <td data-col="1">userInfoPath</td>
       <td data-col="3">每个开发者都需要配置自己的账号</td>
-      <td data-col="4">创建一个JSON文件（如：userInfo.json），内容是iconfont的登录账号秘密，如： { "username": "your username", "password": "your password" }，然后把该文件的地址填到该配置项里，如："userInfoPath": "./userInfo.json"。最后可以把账号文件添加到 .gitignore 里，以免把账号信息提交到项目上。</td>
+      <td data-col="4">创建一个JSON文件（如：userInfo.json），内容是iconfont的登录账号秘密，如： { "username": "your username", "password": "your password" }，然后把文件的地址填到该配置项里，如："userInfoPath": "./userInfo.json"。最后可以把账号文件添加到 .gitignore 里，以免把账号信息提交到项目上。</td>
     </tr>
   </tbody>
 </table>
