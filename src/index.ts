@@ -151,22 +151,33 @@ async function getConfig() {
     url,
     ctoken,
     EGG_SESS_ICONFONT,
-    username,
-    password,
+    userInfoPath,
     projectId,
     outDir = './src/assets/iconfont',
     language = 'js'
   } = require(getRootFilePath('./package.json')).autoIconfont ?? {}
+
   if (!judgeIsVaildUrl(url)) {
-    if (!username || !password || !projectId || (!EGG_SESS_ICONFONT && ctoken))
-      throw new Error('iconfont 地址异常，并且项目信息和用户信息异常')
+    if (!projectId) throw new Error('项目id不存在！')
+
+    if (!userInfoPath && !(EGG_SESS_ICONFONT && ctoken)) throw new Error('iconfont 地址异常，或者用户信息异常')
+    let username: string | undefined
+    let password: string | undefined
+
+    if (/\.json$/i.test(userInfoPath)) {
+      const res = require(getRootFilePath(userInfoPath))
+      username = res.username
+      password = res.password
+    }
     const iconfont = new IconFont({ username, password, projectId, eggSessIconfont: EGG_SESS_ICONFONT, ctoken })
 
     await iconfont.init()
 
     const { js_file } = (await iconfont.getIconInfo()) ?? {}
+
     url = js_file
   }
+
   config.language = language
   formatUrl(url)
   formatPath(outDir)
@@ -176,10 +187,10 @@ async function getConfig() {
 export async function init() {
   await getConfig() // 读取 项目配置信息
 
-  getIconName() // 生成 icon 名称文件
-  getIconJsCode() // 生成 js 代码
-  getIconfontCss() // 生成 css 文件
-  downloadFileAsync() // 下载 字体包
+  // getIconName() // 生成 icon 名称文件
+  // getIconJsCode() // 生成 js 代码
+  // getIconfontCss() // 生成 css 文件
+  // downloadFileAsync() // 下载 字体包
 }
 
 // init()

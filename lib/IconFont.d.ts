@@ -1,18 +1,23 @@
 import puppeteer, { Page, Browser, HTTPResponse } from 'puppeteer-core';
+declare type IconFontConfig = {
+    username?: string;
+    password?: string;
+    projectId: string;
+    ctoken?: string;
+    eggSessIconfont?: string;
+};
 export default class IconFont {
     page: Page;
     browser: Browser;
-    password: string;
-    username: string;
+    username?: string;
+    password?: string;
     projectId: string;
     iconInfo: Record<string, string> | null;
     eventList: Map<string, [Function, Function]>;
+    ctoken?: string;
+    eggSessIconfont?: string;
     cookies: Record<string, string>;
-    constructor(config: {
-        password: string;
-        projectId: string;
-        username: string;
-    });
+    constructor(config: IconFontConfig);
     init(): Promise<void>;
     listenPageChange(): void;
     onPageChange(url: string): Promise<puppeteer.HTTPResponse>;
@@ -27,3 +32,4 @@ export default class IconFont {
     handleLoginError(response: HTTPResponse): Promise<void>;
     getCookie(): Promise<void>;
 }
+export {};

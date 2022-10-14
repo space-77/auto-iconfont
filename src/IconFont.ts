@@ -12,9 +12,9 @@ const CREATE_CDN = `${BASE_URL}/api/project/cdn.json`
 const PROJECT_DETAIL = `${BASE_URL}/api/project/detail.json`
 
 type IconFontConfig = {
-  password: string
+  username?: string
+  password?: string
   projectId: string
-  username: string
 
   ctoken?: string
   eggSessIconfont?: string
@@ -23,8 +23,8 @@ type IconFontConfig = {
 export default class IconFont {
   page!: Page
   browser!: Browser
-  password!: string
-  username!: string
+  username?: string
+  password?: string
   projectId!: string
   iconInfo: Record<string, string> | null = null
   eventList: Map<string, [Function, Function]> = new Map([])
@@ -73,15 +73,19 @@ export default class IconFont {
   async getIconInfo() {
     if (this.iconInfo) return this.iconInfo
     try {
-      const response = await this.onPageChange(LOGIN_API)
-      await this.loginSuccess(response)
+      const { ctoken, EGG_SESS_ICONFONT } = this.cookies
+
+      if (!ctoken && !EGG_SESS_ICONFONT) {
+        const response = await this.onPageChange(LOGIN_API)
+        await this.loginSuccess(response)
+      }
 
       // 获取图标信息
       this.iconInfo = await this.getProjectDetail()
-      await this.browser.close()
+      await this.browser?.close()
       return this.iconInfo
     } catch (error) {
-      await this.browser.close()
+      await this.browser?.close()
       return Promise.reject(error)
     }
   }
@@ -99,12 +103,15 @@ export default class IconFont {
 
   async login() {
     try {
+      const { username, password } = this
+      if (!username || !password) throw new Error('账号或密码不存在')
+
       await this.page.goto(LOGIN_URL)
       console.log('进入登录页面')
 
       await this.page.waitForSelector('#userid').then(async () => {
-        await this.page.type('#userid', this.username)
-        await this.page.type('#password', this.password)
+        await this.page.type('#userid', username)
+        await this.page.type('#password', password)
         await this.page.keyboard.press('Enter')
         this.checkForm()
       })
@@ -118,9 +125,9 @@ export default class IconFont {
     if (response.status() === 200) {
       // 处理登录失败
       await this.handleLoginError(response)
-      console.log('登录成功')
       // 获取cookie
       await this.getCookie()
+      console.log('登录成功')
     } else {
       throw new Error(`登录失败[code=${response.status()}]`)
     }
