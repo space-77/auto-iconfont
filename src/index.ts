@@ -187,10 +187,10 @@ async function getConfig() {
 export async function init() {
   await getConfig() // 读取 项目配置信息
 
-  // getIconName() // 生成 icon 名称文件
-  // getIconJsCode() // 生成 js 代码
-  // getIconfontCss() // 生成 css 文件
-  // downloadFileAsync() // 下载 字体包
+  getIconName() // 生成 icon 名称文件
+  getIconJsCode() // 生成 js 代码
+  getIconfontCss() // 生成 css 文件
+  downloadFileAsync() // 下载 字体包
 }
 
 // init()
