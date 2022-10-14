@@ -62,13 +62,6 @@ pnpm add -D auto-iconfont
 > 获取 iconfont 项目信息数据方式配置，共有三种方式获取数据，各种方式有不用的优缺点，选择一个适合自己的即可。
 
 <table>
-  <colgroup>
-    <col width="143" />
-    <col width="181" />
-    <col width="89" />
-    <col width="232" />
-    <col width="261" />
-  </colgroup>
   <tbody>
     <tr>
       <td data-col="0">配置方式</td>
@@ -141,3 +134,44 @@ yarn icon-build
 # or
 pnpm icon-build
 ```
+
+## 生成文件说明
+<table>
+  <tbody>
+    <tr>
+      <td>文件名</td>
+      <td>说明</td>
+    </tr>
+    <tr>
+      <td>index.ts / index.js</td>
+      <td>入口文件，用于在项目引入icon资源，里面包含了项目上有什么icon以及每个icon的说明等信息，有助于编辑器有好提示。</td>
+    </tr>
+    <tr>
+      <td>iconfont.js</td>
+      <td>svg 的集合</td>
+    </tr>
+    <tr>
+      <td>iconfont.css</td>
+      <td>unicode 引用文件，于线上的差不多，只不过删减没必要的文件，并且把字体引用方式改为本地文件</td>
+    </tr>
+    <tr>
+      <td>iconfont.ttf</td>
+      <td>字体文件本地化</td>
+    </tr>
+    <tr>
+      <td>index.d.ts</td>
+      <td>在 language 为 js 模式下，会生成入口文件的 ts 声明文件，在js项目，有助于编辑器提示，有什么icon以及icon的说明</td>
+    </tr>
+  </tbody>
+</table>
+
+## 使用
+### 引入
+把生成文件目录下的 `index.js` 或 `index.ts` 文件在项目入口文件引入即可，
+```js
+// main.js
+import '@/assets/iconfont/iconfont'
+```
+
+### 使用
+后续使用，请参考 [iconfont使用帮助](https://www.iconfont.cn/help/detail?helptype=code)
