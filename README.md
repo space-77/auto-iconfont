@@ -52,8 +52,9 @@ pnpm add -D auto-iconfont
     "outDir": "xxx",
     // 生成 js 还是 ts 的代码，默认值 js
     "language": "xxx",
-    // 替换 .iconfont 的样式
+    // 修改 .iconfont 的样式
     "fontFamilyClass": {
+      // 替换 .iconfont， 如 [class^='icon-']
       "className": "xxx",
       "values": {
         // css 样式
