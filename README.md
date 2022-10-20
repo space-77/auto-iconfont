@@ -54,7 +54,7 @@ pnpm add -D auto-iconfont
     "language": "xxx",
     // 修改 .iconfont 的样式
     "fontFamilyClass": {
-      // 替换 .iconfont， 如 [class^='icon-']
+      // 替换 .iconfont， 如 [class*='icon-'],[class^='icon-']
       "className": "xxx",
       "values": {
         // css 样式
@@ -142,10 +142,10 @@ pnpm add -D auto-iconfont
 - 默认：`-`
 - 说明：
    - 修改 css 文件的 `.iconfont` 样式
-   - `fontFamilyClass.className` 替换 `.iconfont` 位置，可以自定义class，如：`[class^='icon-']`
+   - `fontFamilyClass.className` 替换 `.iconfont` 位置，可以自定义class，如：`[class*='icon-'],[class^='icon-']`
    - `fontFamilyClass.values.xxx`， 增删改 `.iconfont` 里的样式
 - eg: ``` "fontFamilyClass": {
-      "className": "[class^='icon-']",
+      "className": "[class*='icon-'],[class^='icon-']",
       "values": {
         "color": "red",
         "font-size": null
