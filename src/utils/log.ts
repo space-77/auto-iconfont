@@ -1,12 +1,13 @@
 import chalk from 'chalk'
+// const chalk = require('chalk')
 
 class Log {
   info(text: string) {
-    console.log(chalk.blue('[doc2ts] '), text)
+    console.log(chalk.blue('[autoIcon] '), text)
   }
 
   error(text: string) {
-    console.log(chalk.red('[doc2ts] '), text)
+    console.log(chalk.red('[autoIcon] '), text)
   }
 
   warning(text: string) {
@@ -18,11 +19,11 @@ class Log {
   }
 
   done(text: string) {
-    return chalk.bgHex('#0DBC79')(text)
+    return chalk.bgHex('#0dbc79')(text)
   }
 
   success(text: string) {
-    console.log(chalk.hex('#0DBC79')('[doc2ts] '), text)
+    console.log(chalk.hex('#0dbc79')('[autoIcon] '), text)
   }
 
   link(text: string) {

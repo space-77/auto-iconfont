@@ -1,6 +1,6 @@
 {
   "name": "auto-iconfont",
-  "version": "1.1.5",
+  "version": "1.1.6",
   "description": "自动获取 iconfont 相关资源并下载到本地",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -17,6 +17,7 @@
     "chalk": "^5.0.1",
     "chrome-paths": "^1.0.1",
     "commander": "^9.4.1",
+    "download": "^8.0.0",
     "edge-paths": "^2.2.1",
     "fs-extra": "^10.1.0",
     "prettier": "^2.7.1",
@@ -24,6 +25,7 @@
     "qs": "^6.11.0"
   },
   "devDependencies": {
+    "@types/download": "^8.0.1",
     "@types/fs-extra": "^9.0.13",
     "@types/node": "^17.0.25",
     "@types/prettier": "^2.7.1",

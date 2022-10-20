@@ -1,11 +1,10 @@
 import fs from 'fs-extra'
-import https from 'https'
 import path from 'path'
 import axios from 'axios'
+import log from './utils/log'
+import download from 'download'
 import IconFont from './IconFont'
 import { createFile, getRootFilePath, judgeIsVaildUrl, loadPrettierConfig, ts2Js } from './utils'
-
-// https://github.com/chenjiezi/iconfont-auto-import
 
 class Config {
   url = ''
@@ -41,34 +40,10 @@ type IconJaon = {
   }[]
 }
 
-function downloadFileAsync() {
-  return new Promise((resolve, reject) => {
-    const filePath = path.join(config.outDir, 'iconfont.ttf')
-    const file = fs.createWriteStream(filePath)
-
-    https.get(`${config.url}.ttf`, res => {
-      if (res.statusCode !== 200) {
-        reject(res.statusCode)
-        return
-      }
-
-      res.on('end', () => {
-        console.log('download end')
-      })
-
-      file
-        .on('finish', () => {
-          console.log('finish write file')
-          file.close(resolve)
-        })
-        .on('error', err => {
-          fs.unlinkSync(filePath)
-          reject(err.message)
-        })
-
-      res.pipe(file)
-    })
-  })
+async function downloadFileAsync() {
+  const filePath = path.join(config.outDir, 'iconfont.ttf')
+  log.info('正在下载 字体文件')
+  fs.writeFileSync(filePath, await download(`${config.url}.ttf`))
 }
 
 function formatUrl(url: string) {
@@ -92,6 +67,7 @@ async function getIconfontCss() {
       /src:[\s\S]*'\);/,
       `src: url('${config.iconTTFAddress}?t=${Date.now()}') format('truetype');`
     )
+    log.info('正在创建 iconfont.css 文件')
     createFile(config.iconCssPath, cssStr)
   } catch (error) {
     console.error(error)
@@ -103,6 +79,7 @@ async function getIconJsCode() {
     const { data } = await axios.get<string>(`${config.url}.js`)
     const filePath = path.join(config.outDir, 'iconfont.js')
     const content = `/* eslint-disable */\r\n${data}`
+    log.info('正在创建 iconfont.js 文件')
     fs.writeFileSync(filePath, content)
   } catch (error) {
     console.error(error)
@@ -138,6 +115,8 @@ async function getIconName() {
   contentFont += '}'
 
   const filePath = path.join(config.outDir, 'index.ts')
+
+  log.info('正在创建入口文件')
   createFile(filePath, contentFont)
 
   if (config.language === 'js') {
@@ -165,9 +144,15 @@ async function getConfig() {
     let password: string | undefined
 
     if (/\.json$/i.test(userInfoPath)) {
-      const res = require(getRootFilePath(userInfoPath))
-      username = res.username
-      password = res.password
+      try {
+        const res = require(getRootFilePath(userInfoPath))
+        username = res.username
+        password = res.password
+      } catch (error) {
+        const err = `${error}`
+        log.error(err)
+        throw new Error(err)
+      }
     }
     const iconfont = new IconFont({ username, password, projectId, eggSessIconfont: EGG_SESS_ICONFONT, ctoken })
 
@@ -185,12 +170,21 @@ async function getConfig() {
 }
 
 export async function init() {
-  await getConfig() // 读取 项目配置信息
+  try {
+    log.clear()
+    await getConfig() // 读取 项目配置信息
 
-  getIconName() // 生成 icon 名称文件
-  getIconJsCode() // 生成 js 代码
-  getIconfontCss() // 生成 css 文件
-  downloadFileAsync() // 下载 字体包
+    const getName = getIconName() // 生成 icon 名称文件
+    const getJsCode = getIconJsCode() // 生成 js 代码
+    const getCssCode = getIconfontCss() // 生成 css 文件
+    const getTtfFile = downloadFileAsync() // 下载 字体包
+    await Promise.all([getName, getJsCode, getCssCode, getTtfFile])
+    setTimeout(() => {
+      log.clear()
+      log.info(log.done(' ALL DONE '))
+    }, 500)
+  } catch (error) {
+    log.error('获取图标信息失败')
+    console.error(error)
+  }
 }
-
-// init()

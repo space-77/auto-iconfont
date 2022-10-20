@@ -1,6 +1,7 @@
 import qs from 'qs'
 import axios from 'axios'
 import puppeteer, { Page, Browser, HTTPResponse } from 'puppeteer-core'
+import log from './utils/log'
 
 const { getEdgePath } = require('edge-paths')
 const chromePaths = require('chrome-paths')
@@ -107,7 +108,7 @@ export default class IconFont {
       if (!username || !password) throw new Error('账号或密码不存在')
 
       await this.page.goto(LOGIN_URL)
-      console.log('进入登录页面')
+      log.info('进入登录页面')
 
       await this.page.waitForSelector('#userid').then(async () => {
         await this.page.type('#userid', username)
@@ -127,7 +128,7 @@ export default class IconFont {
       await this.handleLoginError(response)
       // 获取cookie
       await this.getCookie()
-      console.log('登录成功')
+      log.success('iconfont 登录成功')
     } else {
       throw new Error(`登录失败[code=${response.status()}]`)
     }
@@ -175,8 +176,8 @@ export default class IconFont {
     if (passwordErrorLabel) {
       passwordErrText = await this.page.$eval('#password-error', el => el.textContent)
     }
-    useridErrText && console.log('username：', useridErrText)
-    passwordErrText && console.log('password：', passwordErrText)
+    useridErrText && log.error(`username：${useridErrText}`)
+    passwordErrText && log.error(`password：${passwordErrText}`)
     if (useridErrText || passwordErrText) await this.browser.close()
   }
 
@@ -204,7 +205,7 @@ export default class IconFont {
     try {
       const json = await response.json()
       if (json.code !== 200) {
-        console.error(`登录失败：${JSON.stringify(json)}`)
+        log.error(`iconfont 登录失败：${JSON.stringify(json)}`)
         await this.browser.close()
       }
     } catch (e) {
