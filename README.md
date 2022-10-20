@@ -51,7 +51,17 @@ pnpm add -D auto-iconfont
     // 文件输出位置，默认值 ./src/assets/iconfont
     "outDir": "xxx",
     // 生成 js 还是 ts 的代码，默认值 js
-    "language": "xxx"
+    "language": "xxx",
+    // 替换 .iconfont 的样式
+    "fontFamilyClass": {
+      "className": "xxx",
+      "values": {
+        // css 样式
+        // "color": "red" // 新增 样式
+        // "font-size": "1.6rem" // 修改 font-size 的值
+        // "font-size": null // 删除 font-size 样式
+      }
+    }
   }
   // ...
 }
@@ -122,6 +132,24 @@ pnpm add -D auto-iconfont
 - 类型：String
 - 默认：`./src/assets/iconfont`
 - 说明：生成文件存放位置
+
+#### 修改 css 文件的 .iconfont 样式
+
+- 参数：`fontFamilyClass`
+- 必传：`否`
+- 类型：Object
+- 默认：`-`
+- 说明：
+   - 修改 css 文件的 `.iconfont` 样式
+   - `fontFamilyClass.className` 替换 `.iconfont` 位置，可以自定义class，如：`[class^='icon-']`
+   - `fontFamilyClass.values.xxx`， 增删改 `.iconfont` 里的样式
+- eg: ``` "fontFamilyClass": {
+      "className": "[class^='icon-']",
+      "values": {
+        "color": "red",
+        "font-size": null
+      }
+    } ```
 
 ## 运行
 

@@ -1,3 +1,4 @@
+import { RequiredOptions } from 'prettier';
 /**
  * @param str
  * @description 烤串转驼峰
@@ -28,12 +29,17 @@ export declare function resolveOutPath(...paths: string[]): string;
 /**
  * @description 创建文件
  */
-export declare function createFile(filePath: string, content: string): Promise<never> | undefined;
+export declare function createFile(filePath: string, content: string, parser: RequiredOptions['parser']): Promise<never> | undefined;
 /**
  * @description 格式化代码
  */
-export declare function format(fileContent: string, prettierOpts: {} | undefined, isTsFile: boolean): string;
+export declare function format(fileContent: string, prettierOpts: {} | undefined, parser: RequiredOptions['parser']): string;
 /** 检测是否是合法url */
 export declare function judgeIsVaildUrl(url: string): boolean;
 export declare function loadPrettierConfig(prettierPath?: string): Promise<void>;
 export declare function ts2Js(filesNames: string[], declaration: boolean): void;
+/**
+ * @param { Any } val - 校验的数据
+ * @description 判断值是否为空值
+ */
+export declare function isVoid(val: any): boolean;
