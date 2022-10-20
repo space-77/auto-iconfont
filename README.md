@@ -145,7 +145,7 @@ pnpm icon-build
     </tr>
     <tr>
       <td>index.ts / index.js</td>
-      <td>入口文件，用于在项目引入icon资源，里面包含了项目上有什么icon以及每个icon的说明等信息，有助于编辑器有好提示。</td>
+      <td>入口文件，用于在项目引入icon资源，里面包含了项目上有什么icon以及每个icon的说明等信息，有助于编辑器友好提示。</td>
     </tr>
     <tr>
       <td>iconfont.js</td>
