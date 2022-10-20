@@ -194,15 +194,15 @@ export async function init() {
     log.clear()
     const fontFamilyClass = await getConfig() // 读取 项目配置信息
 
-    // const getName = getIconName() // 生成 icon 名称文件
-    // const getJsCode = getIconJsCode() // 生成 js 代码
+    const getName = getIconName() // 生成 icon 名称文件
+    const getJsCode = getIconJsCode() // 生成 js 代码
     const getCssCode = getIconfontCss(fontFamilyClass) // 生成 css 文件
-    // const getTtfFile = downloadFileAsync() // 下载 字体包
-    // await Promise.all([getName, getJsCode, getCssCode, getTtfFile])
-    // setTimeout(() => {
-    //   log.clear()
-    //   log.info(log.done(' ALL DONE '))
-    // }, 500)
+    const getTtfFile = downloadFileAsync() // 下载 字体包
+    await Promise.all([getName, getJsCode, getCssCode, getTtfFile])
+    setTimeout(() => {
+      log.clear()
+      log.info(log.done(' ALL DONE '))
+    }, 800)
   } catch (error) {
     log.error('获取图标信息失败')
     console.error(error)

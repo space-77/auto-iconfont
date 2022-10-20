@@ -1,6 +1,6 @@
 {
   "name": "auto-iconfont",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "自动获取 iconfont 相关资源并下载到本地",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -48,7 +48,8 @@
     "iconfont"
   ],
   "autoIconfont": {
-    "url": "//at.alicdn.com/t/c/font_1849082_ron8vt3bg2b.js",
+    "url": "//at.alicdn.com/t/c/font_1849082_3x6or1u6tzg.js",
+    "language": "ts",
     "fontFamilyClass": {
       "className": "[class^='icon-']",
       "values": {
