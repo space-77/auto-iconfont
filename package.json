@@ -1,6 +1,6 @@
 {
   "name": "auto-iconfont",
-  "version": "1.1.6",
+  "version": "1.1.7",
   "description": "自动获取 iconfont 相关资源并下载到本地",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
