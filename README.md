@@ -36,14 +36,14 @@ pnpm add -D auto-iconfont
   // ...
   "autoIconfont": {
 
-    // 用户认证信息方式获取数据
+    // 用户认证信息方式获取数据 【方式一】
     "ctoken": "xxx",
     "EGG_SESS_ICONFONT": "xxx",
 
-    // 项目 js 地址方式获取数据
+    // 项目 js 地址方式获取数据 【方式二】
     "url": "xxx",
 
-   // 用户账号信息配置文件地址
+   // 用户账号信息配置文件地址，用户账号密码方式获取数据 【方式三】
     "userInfoPath": "xxx",
 
     // 项目ID
@@ -74,7 +74,7 @@ pnpm add -D auto-iconfont
       <td data-col="0">用户token</td>
       <td data-col="1">ctoken、EGG_SESS_ICONFONT</td>
       <td rowspan="3" data-col="2" style="vertical-align: middle">三选其一</td>
-      <td data-col="3">认证信息过去后需要重新获取</td>
+      <td data-col="3">认证信息过期后需要重新获取</td>
       <td data-col="4">登录 iconfont.cn 后，在 cookies 里查找对应字段</td>
     </tr>
     <tr>
@@ -153,7 +153,7 @@ pnpm icon-build
     </tr>
     <tr>
       <td>iconfont.css</td>
-      <td>unicode 引用文件，于线上的差不多，只不过删减没必要的文件，并且把字体引用方式改为本地文件</td>
+      <td>unicode 引用文件，和线上的差不多，只不过删减没必要的文件，并且把字体引用方式改为本地文件</td>
     </tr>
     <tr>
       <td>iconfont.ttf</td>
@@ -177,7 +177,7 @@ pnpm icon-build
 import icons from '@/assets/iconfont'
 ```
 
-如果是 Vue 项目，可以把 icons 混入到 Vue 原型，然后再把 ts 的类型提示加上，这样使用更方便，参考文章 [ts 扩展功能到 Vue 原型(this)上](https://www.jianshu.com/p/ecc240dd746d)
+如果是 Vue 项目（js 及 ts），可以把 icons 混入到 Vue 原型，然后再把类型提示加上，这样编辑器能提示，使用起来更方便，参考文章 [ts类型扩展功能到 Vue 原型(this)上](https://www.jianshu.com/p/ecc240dd746d)
 
 ### 使用
 
