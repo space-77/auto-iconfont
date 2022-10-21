@@ -1,6 +1,6 @@
 import fs from 'fs'
 import path from 'path'
-import prettier from 'prettier'
+import prettier, { RequiredOptions } from 'prettier'
 import { PrettierConfig } from '../config'
 import ts, { ModuleKind, ScriptTarget } from 'typescript'
 
@@ -53,10 +53,9 @@ export function resolveOutPath(...paths: string[]) {
 /**
  * @description 创建文件
  */
-export function createFile(filePath: string, content: string) {
+export function createFile(filePath: string, content: string, parser: RequiredOptions['parser']) {
   try {
-    const isTsFile = /\.ts/.test(filePath)
-    fs.writeFileSync(filePath, format(content, PrettierConfig.config, isTsFile))
+    fs.writeFileSync(filePath, format(content, PrettierConfig.config, parser))
   } catch (error) {
     console.error(error)
     return Promise.reject(error)
@@ -66,10 +65,10 @@ export function createFile(filePath: string, content: string) {
 /**
  * @description 格式化代码
  */
-export function format(fileContent: string, prettierOpts = {}, isTsFile: boolean) {
+export function format(fileContent: string, prettierOpts = {}, parser: RequiredOptions['parser']) {
   try {
     return prettier.format(fileContent, {
-      parser: isTsFile ? 'typescript' : 'babel',
+      parser,
       ...prettierOpts
     })
   } catch (e: any) {
@@ -126,9 +125,17 @@ export function ts2Js(filesNames: string[], declaration: boolean) {
 
   const host = ts.createCompilerHost(options)
   host.writeFile = (fileName, content) => {
-    createFile(fileName, content)
+    createFile(fileName, content, 'babel')
   }
 
   const program = ts.createProgram(filesNames, options, host)
   program.emit()
+}
+
+/**
+ * @param { Any } val - 校验的数据
+ * @description 判断值是否为空值
+ */
+export function isVoid(val: any): boolean {
+  return val === undefined || val === null || Number.isNaN(val)
 }

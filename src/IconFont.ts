@@ -1,6 +1,7 @@
 import qs from 'qs'
 import axios from 'axios'
 import puppeteer, { Page, Browser, HTTPResponse } from 'puppeteer-core'
+import log from './utils/log'
 
 const { getEdgePath } = require('edge-paths')
 const chromePaths = require('chrome-paths')
@@ -11,28 +12,49 @@ const LOGIN_API = `${BASE_URL}/api/account/login.json`
 const CREATE_CDN = `${BASE_URL}/api/project/cdn.json`
 const PROJECT_DETAIL = `${BASE_URL}/api/project/detail.json`
 
+type IconFontConfig = {
+  username?: string
+  password?: string
+  projectId: string
+
+  ctoken?: string
+  eggSessIconfont?: string
+}
+
 export default class IconFont {
   page!: Page
   browser!: Browser
-  password!: string
-  username!: string
+  username?: string
+  password?: string
   projectId!: string
   iconInfo: Record<string, string> | null = null
   eventList: Map<string, [Function, Function]> = new Map([])
 
+  ctoken?: string
+  eggSessIconfont?: string
+
   cookies: Record<string, string> = {}
 
-  constructor(config: { password: string; projectId: string; username: string }) {
-    const { password, projectId, username } = config
+  constructor(config: IconFontConfig) {
+    const { password, projectId, username, ctoken, eggSessIconfont } = config
     this.password = password
     this.username = username
     this.projectId = projectId
+
+    this.ctoken = ctoken
+    this.eggSessIconfont = eggSessIconfont
   }
 
   async init() {
-    await this.initBrowser()
-    this.listenPageChange()
-    this.login()
+    const { ctoken, eggSessIconfont } = this
+    if (ctoken && eggSessIconfont) {
+      this.cookies.ctoken = ctoken
+      this.cookies.EGG_SESS_ICONFONT = eggSessIconfont
+    } else {
+      await this.initBrowser()
+      this.listenPageChange()
+      this.login()
+    }
   }
 
   listenPageChange() {
@@ -52,15 +74,19 @@ export default class IconFont {
   async getIconInfo() {
     if (this.iconInfo) return this.iconInfo
     try {
-      const response = await this.onPageChange(LOGIN_API)
-      await this.loginSuccess(response)
+      const { ctoken, EGG_SESS_ICONFONT } = this.cookies
+
+      if (!ctoken && !EGG_SESS_ICONFONT) {
+        const response = await this.onPageChange(LOGIN_API)
+        await this.loginSuccess(response)
+      }
 
       // 获取图标信息
       this.iconInfo = await this.getProjectDetail()
-      await this.browser.close()
+      await this.browser?.close()
       return this.iconInfo
     } catch (error) {
-      await this.browser.close()
+      await this.browser?.close()
       return Promise.reject(error)
     }
   }
@@ -78,12 +104,15 @@ export default class IconFont {
 
   async login() {
     try {
+      const { username, password } = this
+      if (!username || !password) throw new Error('账号或密码不存在')
+
       await this.page.goto(LOGIN_URL)
-      console.log('进入登录页面')
+      log.info('进入登录页面')
 
       await this.page.waitForSelector('#userid').then(async () => {
-        await this.page.type('#userid', this.username)
-        await this.page.type('#password', this.password)
+        await this.page.type('#userid', username)
+        await this.page.type('#password', password)
         await this.page.keyboard.press('Enter')
         this.checkForm()
       })
@@ -97,9 +126,9 @@ export default class IconFont {
     if (response.status() === 200) {
       // 处理登录失败
       await this.handleLoginError(response)
-      console.log('登录成功')
       // 获取cookie
       await this.getCookie()
+      log.success('iconfont 登录成功')
     } else {
       throw new Error(`登录失败[code=${response.status()}]`)
     }
@@ -147,8 +176,8 @@ export default class IconFont {
     if (passwordErrorLabel) {
       passwordErrText = await this.page.$eval('#password-error', el => el.textContent)
     }
-    useridErrText && console.log('username：', useridErrText)
-    passwordErrText && console.log('password：', passwordErrText)
+    useridErrText && log.error(`username：${useridErrText}`)
+    passwordErrText && log.error(`password：${passwordErrText}`)
     if (useridErrText || passwordErrText) await this.browser.close()
   }
 
@@ -176,11 +205,10 @@ export default class IconFont {
     try {
       const json = await response.json()
       if (json.code !== 200) {
-        console.error(`登录失败：${JSON.stringify(json)}`)
+        log.error(`iconfont 登录失败：${JSON.stringify(json)}`)
         await this.browser.close()
       }
     } catch (e) {
-
       // 登录成功没有返回响应实体，会导致报错，如果登录成功，跳过这个报错。
       const loginSuccessErrMsg =
         'ProtocolError: Could not load body for this request. This might happen if the request is a preflight request.'
