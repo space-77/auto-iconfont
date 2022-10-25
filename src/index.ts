@@ -11,7 +11,7 @@ class Config {
   url = ''
   outDir = './iconfont'
   iconify = { enable: false, prefix: '' }
-  language = 'js' as 'js' | 'ts'
+  language: 'js' | 'ts' = 'js'
   get iconTTFPath() {
     return path.join(this.outDir, 'iconfont.ttf')
   }
@@ -196,7 +196,7 @@ async function getIconName() {
   glyphs.forEach(item => {
     const { font_class, name } = item
     // 处理 ts 文件信息
-    const iconName = font_class.replace(/-/g, '_').toUpperCase()
+    const iconName = font_class.replace(/-/g, '_') // .toUpperCase()
     const typeVlaue = `'${css_prefix_text}${font_class}'`
     contentFont += `
     /**
@@ -211,7 +211,7 @@ async function getIconName() {
   // 处理 Iconify 的 Json 数据
   if (enable) {
     const svgDatas = (await getSvgData()).map(i => {
-      i.iconName = i.iconName.replace(prefixReg, '')
+      i.iconName = i.iconName.replace(prefixReg, '').replace(/-/g, '_')
       return i
     })
 
