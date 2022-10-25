@@ -45,8 +45,9 @@
   "author": "space-77",
   "license": "MIT",
   "keywords": [
+    "iconfont",
     "iconify",
-    "iconfont"
+    "auto"
   ],
   "autoIconfont": {
     "url": "//at.alicdn.com/t/c/font_1849082_3x6or1u6tzg.js",
