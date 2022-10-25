@@ -139,3 +139,19 @@ export function ts2Js(filesNames: string[], declaration: boolean) {
 export function isVoid(val: any): boolean {
   return val === undefined || val === null || Number.isNaN(val)
 }
+
+export function findMost(arr: any[]) {
+  if (!arr.length) return
+  if (arr.length === 1) return 1
+  let maxName
+  let maxNum = 0
+  arr.reduce((res, currentNum) => {
+    res[currentNum] ? (res[currentNum] += 1) : (res[currentNum] = 1)
+    if (res[currentNum] > maxNum) {
+      maxNum = res[currentNum]
+      maxName = currentNum
+    }
+    return res
+  }, {})
+  return maxName
+}

@@ -4,12 +4,13 @@ import axios from 'axios'
 import log from './utils/log'
 import download from 'download'
 import IconFont from './IconFont'
-import { createFile, getRootFilePath, isVoid, judgeIsVaildUrl, loadPrettierConfig, ts2Js } from './utils'
+import { createFile, findMost, getRootFilePath, isVoid, judgeIsVaildUrl, loadPrettierConfig, ts2Js } from './utils'
 
 const css2json = require('css2json')
 class Config {
   url = ''
   outDir = './iconfont'
+  iconify = { enable: false, prefix: '' }
   language = 'js' as 'js' | 'ts'
   get iconTTFPath() {
     return path.join(this.outDir, 'iconfont.ttf')
@@ -39,6 +40,13 @@ type IconJaon = {
     font_class: string
     unicode_decimal: number
   }[]
+}
+
+type SvgData = {
+  body: string
+  width?: string
+  height?: string
+  iconName: string
 }
 
 async function downloadFileAsync() {
@@ -103,21 +111,91 @@ async function getIconJsCode() {
   }
 }
 
-async function getIconName() {
-  const jsonPaht = `${config.url}.json`
-  const { data } = await axios.get<IconJaon>(jsonPaht)
-  const { glyphs, name, description, css_prefix_text } = data
+function createIconifyJson(svgDatas: SvgData[]) {
+  const icons: Record<string, Omit<SvgData, 'iconName'>> = {}
 
-  let contentFont = `
+  const { prefix, enable } = config.iconify
+  if (!enable) return
+
+  const mostWidth = findMost(svgDatas.map(i => i.width))
+  const mostHeight = findMost(svgDatas.map(i => i.height))
+
+  svgDatas.forEach(i => {
+    let { iconName, width, height, body } = i
+    width = width === mostWidth ? undefined : width
+    height = height === mostHeight ? undefined : height
+
+    icons[iconName] = { body, width, height }
+  })
+
+  const IconiftJson = {
+    prefix,
+    icons,
+    width: mostWidth,
+    height: mostHeight
+  }
+
+  const filePath = path.join(config.outDir, 'iconifyJson.json')
+
+  createFile(filePath, JSON.stringify(IconiftJson), 'json')
+}
+
+function createIndexTs(contentFont: string, { name, description }: IconJaon) {
+  const filePath = path.join(config.outDir, 'index.ts')
+
+  const tsContent = `
   import './iconfont'
   import './iconfont.css'
 
   /**
    * @description ${name}-字体图标名称列表 ${description}
    */
-  export default {\r\n`
+  export default {
+    ${contentFont}
+  }`
+
+  log.info('正在创建 入口 文件')
+  createFile(filePath, tsContent, 'typescript')
+
+  if (config.language === 'js') {
+    ts2Js([filePath], true)
+    fs.unlinkSync(filePath)
+  }
+}
+
+async function getSvgData(): Promise<SvgData[]> {
+  try {
+    const { url } = config
+    const res = await axios.get(`${url}.js`)
+    const iconJsData = (res.data as string) ?? ''
+    const svg = iconJsData.replace(/.*<svg>([\s\S]+)<\/svg>.*/, (_, svg) => `<svg>${svg}</svg>`)
+    const iconStrList = svg.match(/(<symbol.*?<\/symbol>)/g) ?? []
+
+    return iconStrList.map(iconstr => {
+      const [, attrs, body] = iconstr.match(/<symbol(.*?)>(<path.*?<\/path>)<\/symbol>/) ?? []
+      const [, viewBox] = attrs.match(/viewBox="(.+)"/) ?? []
+      const [, iconName] = attrs.match(/id="(\S+)"/) ?? []
+      const [, , width, height] = viewBox.split(' ')
+      return { body, width, height, iconName }
+    })
+  } catch (e) {
+    console.error(e)
+    throw new Error('获取 svg 信息异常')
+  }
+}
+
+async function getIconName() {
+  const { prefix, enable } = config.iconify
+
+  const jsonPaht = `${config.url}.json`
+  const { data } = await axios.get<IconJaon>(jsonPaht)
+
+  const { glyphs, css_prefix_text } = data
+  const prefixReg = new RegExp(`^${css_prefix_text}`)
+  let contentFont = ''
   glyphs.forEach(item => {
     const { font_class, name } = item
+    // 处理 ts 文件信息
     const iconName = font_class.replace(/-/g, '_').toUpperCase()
     const typeVlaue = `'${css_prefix_text}${font_class}'`
     contentFont += `
@@ -128,17 +206,17 @@ async function getIconName() {
     ${iconName}: ${typeVlaue},
     `
   })
+  createIndexTs(contentFont, data)
 
-  contentFont += '}'
+  // 处理 Iconify 的 Json 数据
+  if (enable) {
+    const svgDatas = (await getSvgData()).map(i => {
+      i.iconName = i.iconName.replace(prefixReg, '')
+      return i
+    })
 
-  const filePath = path.join(config.outDir, 'index.ts')
-
-  log.info('正在创建 入口 文件')
-  createFile(filePath, contentFont, 'typescript')
-
-  if (config.language === 'js') {
-    ts2Js([filePath], true)
-    fs.unlinkSync(filePath)
+    config.iconify.prefix = !prefix ? css_prefix_text : prefix
+    createIconifyJson(svgDatas)
   }
 }
 
@@ -146,13 +224,19 @@ async function getConfig() {
   let {
     url,
     ctoken,
+    iconify = {},
     projectId,
     userInfoPath,
+    // iconifyPrefix,
     language = 'js',
     fontFamilyClass,
     EGG_SESS_ICONFONT,
     outDir = './src/assets/iconfont'
   } = require(getRootFilePath('./package.json')).autoIconfont ?? {}
+
+  config.iconify = iconify
+
+  // config.iconifyPrefix = iconifyPrefix
 
   if (!judgeIsVaildUrl(url)) {
     if (!projectId) throw new Error('项目id不存在！')

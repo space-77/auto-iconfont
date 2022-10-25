@@ -62,7 +62,16 @@ pnpm add -D auto-iconfont
         // "font-size": "1.6rem" // 修改 font-size 的值
         // "font-size": null // 删除 font-size 样式
       }
-    }
+    },
+
+    // v1.3.0 版本及以上有效
+    // 添加 vscode 插件 Iconify IntelliSense 的显示【在编辑器显示使用的icon效果】
+    "iconify": {
+      // 是否生成 iconify 文件，默认关闭（false）
+      "enable": false,
+      // icon 前缀，默认使用iconfont项目设置里的前缀
+      "prefix": "xx"
+    },
   }
   // ...
 }
@@ -144,13 +153,32 @@ pnpm add -D auto-iconfont
    - 修改 css 文件的 `.iconfont` 样式
    - `fontFamilyClass.className` 替换 `.iconfont` 位置，可以自定义class，如：`[class*='icon-'],[class^='icon-']`
    - `fontFamilyClass.values.xxx`， 增删改 `.iconfont` 里的样式
-- eg: ``` "fontFamilyClass": {
+   - eg: ``` "fontFamilyClass": {
       "className": "[class*='icon-'],[class^='icon-']",
       "values": {
         "color": "red",
         "font-size": null
       }
     } ```
+#### 生成 Iconify IntelliSense 配置信息
+
+- 参数：`iconify`
+- 必传：`否`
+- 类型：Object
+- 默认：`-`
+- 说明：
+   - v1.3.0 版本及以上有效。
+   - 添加 `vscode` 插件 `Iconify IntelliSense` 的显示【在编辑器显示使用的icon效果】
+   - `iconify.enable`，是否开启，默认关闭。
+   - `iconify.prefix`，icon 前缀，默认使用iconfont项目设置里的前缀。
+- 使用：
+   - 在 `vscode` 安装 [Iconify IntelliSense](https://marketplace.visualstudio.com/items?itemName=antfu.iconify) 插件。
+   - 运行脚本后 `outDir`目录下会生成一个 `iconifyJson.json` 文件。
+   - 在项目根目录新建`.vscode`文件夹，文件里新建`settings.json`文件【已有可以忽略】
+   - 在 `settings.json` 文件里，把添加 `iconifyJson.json`文件的路径, 添加到 `iconify.customCollectionJsonPaths`里面，参考 [vscode-iconify](https://github.com/antfu/vscode-iconify/blob/main/test/fixture/.vscode/settings.json)。注: `settings.json` 文件里 `iconify.delimiters`是`prefix`和图标名字之间的分隔符。
+   - 使用 `prefix` + `delimiters` + `iconName`, eg：参考[官方例子](https://github.com/antfu/vscode-iconify/blob/main/test/fixture/index.html#L8)。
+   - 修改 `iconifyJson.json` 文件，需要重启 `vscode`才生效。
+
 
 ## 运行
 
@@ -191,6 +219,10 @@ pnpm icon-build
     <tr>
       <td>index.d.ts</td>
       <td>在 language 为 js 模式下，会生成入口文件的 ts 声明文件，在js项目，有助于编辑器提示，有什么icon以及icon的说明</td>
+    </tr>
+    <tr>
+      <td>iconifyJson.json</td>
+      <td>iconify 插件配置文件</td>
     </tr>
   </tbody>
 </table>
