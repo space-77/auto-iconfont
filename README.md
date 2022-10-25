@@ -27,6 +27,17 @@ pnpm add -D auto-iconfont
   }
 }
 ```
+## 运行
+
+```shell
+npm run icon-build
+
+# or
+yarn icon-build
+
+# or
+pnpm icon-build
+```
 
 ### 配置 iconfont 信息
 
@@ -178,20 +189,8 @@ pnpm add -D auto-iconfont
    - 在 `settings.json` 文件里，把添加 `iconifyJson.json`文件的路径, 添加到 `iconify.customCollectionJsonPaths`里面，参考 [vscode-iconify](https://github.com/antfu/vscode-iconify/blob/main/test/fixture/.vscode/settings.json)。注: `settings.json` 文件里 `iconify.delimiters`是`prefix`和图标名字之间的分隔符。
    - 使用 `prefix` + `delimiters` + `iconName`, eg：参考[官方例子](https://github.com/antfu/vscode-iconify/blob/main/test/fixture/index.html#L8)。
    - 修改 `iconifyJson.json` 文件，需要重启 `vscode`才生效。
-   - ![setting.png](https://s1.ax1x.com/2022/10/26/xWANrT.png)
-   - ![result.png](https://s1.ax1x.com/2022/10/26/xWAgsK.png)
-
-## 运行
-
-```shell
-npm run icon-build
-
-# or
-yarn icon-build
-
-# or
-pnpm icon-build
-```
+![setting.png](https://s1.ax1x.com/2022/10/26/xWANrT.png)
+![result.png](https://s1.ax1x.com/2022/10/26/xWAfde.png)
 
 ## 生成文件说明
 
