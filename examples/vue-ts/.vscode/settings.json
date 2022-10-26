@@ -1,0 +1,10 @@
+{
+  "iconify.color": "#ddd",
+  "iconify.customCollectionJsonPaths": [
+    "./src/assets/iconfont/iconifyJson.json"
+  ],
+  "iconify.delimiters": [
+    "-",
+    "."
+  ]
+}
