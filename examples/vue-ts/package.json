@@ -26,7 +26,8 @@
       "className": "[class*='icons-'],[class^='icons-']"
     },
     "iconify": {
-      "enable": true
+      "enable": true,
+      "prefix": "icons"
     }
   }
 }
