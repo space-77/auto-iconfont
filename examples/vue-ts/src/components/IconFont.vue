@@ -9,7 +9,7 @@ const props = defineProps<{
 const fontSize = computed(() => {
   const { size } = props
   if (!size) return ''
-  return `${size}`.endsWith('px') ?  size : `${size}px`
+  return `${size}`.endsWith('px') ? size : `${size}px`
 })
 </script>
 

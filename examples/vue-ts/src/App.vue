@@ -36,7 +36,7 @@ import IconFont from './components/IconFont.vue'
         - iconify.enable 开启 iconify 生成 Iconify IntelliSense 配置文件（生成 iconifyJson.json 文件）
         - iconify.prefix 前缀，默认使用iconfont项目设置里的前缀（如果项目配置的前缀最后一个字符是非）
       3、路径：src/type.d.ts 和 src/mian.ts
-        - 配置 .vue 文件，在绑定元素时输入 icons. 有对应的提示信息
+        - 配置 vue 的 mixin，在绑定元素时输入 icon. 有对应的图标提示，同事也能应用对应的图标
      -->
   </div>
   <HelloWorld msg="Vite + Vue" />

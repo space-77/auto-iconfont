@@ -1,6 +1,6 @@
 export {}
 declare module 'vue' {
   interface ComponentCustomProperties {
-    icons: typeof import('./assets/iconfont')['default']
+    icon: Record<string, string>
   }
 }
