@@ -4,13 +4,14 @@ import axios from 'axios'
 import log from './utils/log'
 import download from 'download'
 import IconFont from './IconFont'
-import { createFile, findMost, getRootFilePath, isVoid, judgeIsVaildUrl, loadPrettierConfig, ts2Js } from './utils'
+import { createFile, findMost, getRootFilePath, isVoid, judgeIsVaildUrl, loadPrettierConfig } from './utils'
 
 const css2json = require('css2json')
 class Config {
   url = ''
   outDir = './iconfont'
-  iconify = { enable: false, prefix: '' }
+  settings = { prefix: '' }
+  iconify = { enable: false, prefix: '', delimiter: '' }
   language: 'js' | 'ts' = 'js'
   get iconTTFPath() {
     return path.join(this.outDir, 'iconfont.ttf')
@@ -22,6 +23,10 @@ class Config {
 
   get iconCssPath() {
     return path.join(this.outDir, 'iconfont.css')
+  }
+
+  get canRename() {
+    return this.iconify.enable && this.settings.prefix !== this.iconify.prefix + this.iconify.delimiter
   }
 }
 
@@ -71,29 +76,36 @@ function formatPath(outDir: string) {
 
 async function getIconfontCss(fontFamilyClass: Record<string, string>) {
   try {
-    let { data: cssStr } = await axios.get<string>(`${config.url}.css`)
-    cssStr = cssStr.replace(
-      /src:[\s\S]*'\);/,
-      `src: url('${config.iconTTFAddress}?t=${Date.now()}') format('truetype');`
-    )
+    const { url, iconTTFAddress, iconCssPath, iconify, settings } = config
+    const { enable, prefix, delimiter } = iconify
 
-    const reg = /(\.iconfont\s\{[\s\S]*grayscale;\r?\n\}\r?\n)/
-    const [css] = cssStr.match(reg) ?? []
-    const cssObj = css2json(css)['.iconfont'] ?? {}
-
+    const { data } = await axios.get<string>(`${url}.css`)
+    const cssJson = css2json(data) as Record<string, Record<string, string>>
     const { className = '.iconfont', values = {} } = fontFamilyClass ?? {}
 
-    Object.assign(cssObj, values)
-    const newCss = Object.entries(cssObj)
-      .filter(([, value]) => !isVoid(value))
-      .sort(([k1], [k2]) => k1.length - k2.length)
-      .map(([k, v]) => `${k}: ${v}`)
-      .join(';')
+    let cssStr = ''
+    for (let [cssName, cssValue] of Object.entries(cssJson)) {
+      if (cssName === '@font-face') {
+        cssValue.src = `url('${iconTTFAddress}?t=${Date.now()}') format('truetype')`
+      } else if (cssName === '.iconfont') {
+        Object.assign(cssValue, values)
+        cssName = className
+      } else if (config.canRename) {
+        // 开启 iconify，并且 iconfont 的 prefix 不等于 项目上的prefix，即需要修改 css 文件的icon类名
+        cssName = cssName.replace(new RegExp(`^\.${settings.prefix}`), `.${prefix + delimiter}`)
+      }
 
-    cssStr = cssStr.replace(RegExp.$1, `${className}{ ${newCss} }\r\n`)
+      const newCss = Object.entries(cssValue)
+        .filter(([, value]) => !isVoid(value))
+        .sort(([k1], [k2]) => k1.length - k2.length)
+        .map(([k, v]) => `${k}: ${v}`)
+        .join(';')
+
+      cssStr += `${cssName} { ${newCss} }\r\n\r\n`
+    }
 
     log.info('正在创建 iconfont.css 文件')
-    createFile(config.iconCssPath, cssStr, 'css')
+    createFile(iconCssPath, cssStr, 'css')
   } catch (error) {
     console.error(error)
   }
@@ -101,9 +113,16 @@ async function getIconfontCss(fontFamilyClass: Record<string, string>) {
 
 async function getIconJsCode() {
   try {
+    const { settings, iconify } = config
+    const { prefix, delimiter } = iconify
+
     const { data } = await axios.get<string>(`${config.url}.js`)
     const filePath = path.join(config.outDir, 'iconfont.js')
-    const content = `/* eslint-disable */\r\n${data}`
+    let content = `/* eslint-disable */\r\n${data}`
+    if (config.canRename) {
+      const prefixReg = new RegExp(`\\sid="${settings.prefix}`, 'g')
+      content = content.replace(prefixReg, ` id="${prefix + delimiter}`)
+    }
     log.info('正在创建 iconfont.js 文件')
     fs.writeFileSync(filePath, content)
   } catch (error) {
@@ -141,7 +160,9 @@ function createIconifyJson(svgDatas: SvgData[]) {
 }
 
 function createIndexTs(contentFont: string, { name, description }: IconJaon) {
-  const filePath = path.join(config.outDir, 'index.ts')
+  const isJsFile = config.language === 'js'
+  const filePrePaht = path.join(config.outDir, `index`)
+  // const filePath = path.join(config.outDir, `index.${config.language}`)
 
   const tsContent = `
   import './iconfont'
@@ -155,12 +176,14 @@ function createIndexTs(contentFont: string, { name, description }: IconJaon) {
   }`
 
   log.info('正在创建 入口 文件')
-  createFile(filePath, tsContent, 'typescript')
 
-  if (config.language === 'js') {
-    ts2Js([filePath], true)
-    fs.unlinkSync(filePath)
+  if (isJsFile) {
+    let tsDFile = tsContent.replace('export default', 'declare const _default:')
+    tsDFile = `${tsDFile}\r\nexport default _default;`
+    createFile(`${filePrePaht}.d.ts`, tsDFile, 'typescript')
   }
+  const filePath = `${filePrePaht}.${config.language}`
+  createFile(filePath, tsContent, isJsFile ? 'babel' : 'typescript')
 }
 
 async function getSvgData(): Promise<SvgData[]> {
@@ -184,20 +207,44 @@ async function getSvgData(): Promise<SvgData[]> {
   }
 }
 
-async function getIconName() {
-  const { prefix, enable } = config.iconify
+async function getIconInfo() {
+  const { iconify, url } = config
+  const { prefix, enable } = iconify
 
-  const jsonPaht = `${config.url}.json`
+  const jsonPaht = `${url}.json`
   const { data } = await axios.get<IconJaon>(jsonPaht)
 
   const { glyphs, css_prefix_text } = data
-  const prefixReg = new RegExp(`^${css_prefix_text}`)
+
+  // 处理 Iconify 的 Json 数据
+  if (enable) {
+    if (!prefix) {
+      iconify.prefix =
+        css_prefix_text.replace(/(-|_)$/, str => {
+          iconify.delimiter = str
+          return ''
+        }) || 'icon'
+      iconify.delimiter = !iconify.delimiter ? '-' : iconify.delimiter
+    }
+
+    config.settings.prefix = css_prefix_text
+
+    const prefixReg = new RegExp(`^${css_prefix_text}`)
+    const svgDatas = (await getSvgData()).map(i => {
+      i.iconName = i.iconName.replace(prefixReg, '').replace(/-/g, '_')
+      return i
+    })
+
+    createIconifyJson(svgDatas)
+  }
+
   let contentFont = ''
+  const newPrefix = enable ? iconify.prefix + iconify.delimiter : css_prefix_text
   glyphs.forEach(item => {
     const { font_class, name } = item
     // 处理 ts 文件信息
     const iconName = font_class.replace(/-/g, '_') // .toUpperCase()
-    const typeVlaue = `'${css_prefix_text}${font_class}'`
+    const typeVlaue = `'${newPrefix}${font_class}'`
     contentFont += `
     /**
      * @name ${font_class}
@@ -207,17 +254,6 @@ async function getIconName() {
     `
   })
   createIndexTs(contentFont, data)
-
-  // 处理 Iconify 的 Json 数据
-  if (enable) {
-    const svgDatas = (await getSvgData()).map(i => {
-      i.iconName = i.iconName.replace(prefixReg, '').replace(/-/g, '_')
-      return i
-    })
-
-    config.iconify.prefix = !prefix ? css_prefix_text : prefix
-    createIconifyJson(svgDatas)
-  }
 }
 
 async function getConfig() {
@@ -234,9 +270,16 @@ async function getConfig() {
     outDir = './src/assets/iconfont'
   } = require(getRootFilePath('./package.json')).autoIconfont ?? {}
 
-  config.iconify = iconify
+  const { enable, prefix = '' } = iconify
 
-  // config.iconifyPrefix = iconifyPrefix
+  const errMsg = 'prefix（前缀） 必须以字母开头，并且只能包含字母、数字、- 和 _'
+  if (prefix !== '' && !/^[a-zA-Z](\w|-)*$/.test(prefix)) throw new Error(errMsg)
+
+  config.iconify.enable = enable
+  config.iconify.prefix = prefix.replace(/(-|_)$/, (str: string) => {
+    config.iconify.delimiter = str
+    return ''
+  })
 
   if (!judgeIsVaildUrl(url)) {
     if (!projectId) throw new Error('项目id不存在！')
@@ -278,11 +321,12 @@ export async function init() {
     log.clear()
     const fontFamilyClass = await getConfig() // 读取 项目配置信息
 
-    const getName = getIconName() // 生成 icon 名称文件
+    await getIconInfo() // 获取项目配置信息 并 生成index.ts文件
+
     const getJsCode = getIconJsCode() // 生成 js 代码
     const getCssCode = getIconfontCss(fontFamilyClass) // 生成 css 文件
     const getTtfFile = downloadFileAsync() // 下载 字体包
-    await Promise.all([getName, getJsCode, getCssCode, getTtfFile])
+    await Promise.all([getJsCode, getCssCode, getTtfFile])
     setTimeout(() => {
       log.clear()
       log.info(log.done(' ALL DONE '))

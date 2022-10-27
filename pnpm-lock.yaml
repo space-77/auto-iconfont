@@ -32,6 +32,7 @@ dependencies:
   prettier: 2.7.1
   puppeteer-core: 18.2.1
   qs: 6.11.0
+  typescript: 4.8.4
 
 devDependencies:
   '@types/download': 8.0.1
@@ -40,7 +41,6 @@ devDependencies:
   '@types/prettier': 2.7.1
   '@types/qs': 6.9.7
   ts-node: 10.9.1_ksn4eycaeggbrckn3ykh37hwf4
-  typescript: 4.8.4
 
 packages:
 
@@ -1259,7 +1259,6 @@ packages:
     resolution: {integrity: sha512-QCh+85mCy+h0IGff8r5XWzOVSbBO+KfeYrMQh7NJ58QujwcE22u+NUSmUxqF+un70P9GXKxa2HCNiTTMJknyjQ==}
     engines: {node: '>=4.2.0'}
     hasBin: true
-    dev: true
 
   /unbzip2-stream/1.4.3:
     resolution: {integrity: sha512-mlExGW4w71ebDJviH16lQLtZS32VKqsSfk80GCfUlwT/4/hNRFsoscrF/c++9xinkMzECL1uL9DDwXqFWkruPg==}

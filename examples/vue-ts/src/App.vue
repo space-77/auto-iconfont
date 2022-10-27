@@ -23,11 +23,11 @@ import IconFont from './components/IconFont.vue'
       3、重启 vscode
     -->
     <IconSvg name="icon-tianjia3" size="50" />
-    <IconSvg name="icon-zuobiao" size="50" />
+    <IconSvg name="icon-dantimenci" size="50" />
     <IconSvg :name="'icon-hongwaimuqiang'" size="50" />
     <IconFont :name="icon.zhinengmensuo" color="red" size="50" />
-    <IconFont :name="icon.yaokongqi" color="#646cff" size="50" />
-    <!--
+    <IconFont :name="icon.zuobiao" color="#646cff" size="50" />
+    <!-- 
       重要文件配置
       1、路径：.vscode/settings.json
         - customCollectionJsonPaths 配置 iconify 信息

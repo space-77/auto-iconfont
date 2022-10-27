@@ -2,7 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import prettier, { RequiredOptions } from 'prettier'
 import { PrettierConfig } from '../config'
-import ts, { ModuleKind, ScriptTarget } from 'typescript'
+// import ts, { ModuleKind, ScriptTarget } from 'typescript'
 
 /**
  * @param str
@@ -115,22 +115,22 @@ export async function loadPrettierConfig(prettierPath?: string) {
   }
 }
 
-export function ts2Js(filesNames: string[], declaration: boolean) {
-  const options = {
-    target: ScriptTarget.ESNext,
-    module: ModuleKind.ES2015,
-    declaration,
-    skipLibCheck: true
-  }
+// export function ts2Js(filesNames: string[], declaration: boolean) {
+//   const options = {
+//     target: ScriptTarget.ESNext,
+//     module: ModuleKind.ES2015,
+//     declaration,
+//     skipLibCheck: true
+//   }
 
-  const host = ts.createCompilerHost(options)
-  host.writeFile = (fileName, content) => {
-    createFile(fileName, content, 'babel')
-  }
+//   const host = ts.createCompilerHost(options)
+//   host.writeFile = (fileName, content) => {
+//     createFile(fileName, content, 'babel')
+//   }
 
-  const program = ts.createProgram(filesNames, options, host)
-  program.emit()
-}
+//   const program = ts.createProgram(filesNames, options, host)
+//   program.emit()
+// }
 
 /**
  * @param { Any } val - 校验的数据
