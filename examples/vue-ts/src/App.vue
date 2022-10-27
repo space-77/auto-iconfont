@@ -2,8 +2,8 @@
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://vuejs.org/api/sfc-script-setup.html#script-setup
 import HelloWorld from './components/HelloWorld.vue'
-import IconSvg from './components/IconSvg.vue';
-import IconFont from './components/IconFont.vue';
+import IconSvg from './components/IconSvg.vue'
+import IconFont from './components/IconFont.vue'
 </script>
 
 <template>
@@ -16,20 +16,18 @@ import IconFont from './components/IconFont.vue';
     </a>
   </div>
   <div>
-    
-    <!-- 
+    <!--
       本项目查看效果
       1、vscode 下载 Iconify IntelliSense 插件
       2、运行 npm run icon-build 命令
       3、重启 vscode
     -->
-    <IconSvg name="icons-tianjia3" size="50" />
-    <IconSvg name="icons-zuobiao" size="50" />
-    <IconSvg :name="'icons-hongwaimuqiang'" size="50" />
-    <IconFont :name="icons.zhinengmensuo" color="red" size="50" />
-    <IconFont :name="icons.yaokongqi" color="#646cff" size="50" />
-
-    <!-- 
+    <IconSvg name="icon-tianjia3" size="50" />
+    <IconSvg name="icon-zuobiao" size="50" />
+    <IconSvg :name="'icon-hongwaimuqiang'" size="50" />
+    <IconFont :name="icon.zhinengmensuo" color="red" size="50" />
+    <IconFont :name="icon.yaokongqi" color="#646cff" size="50" />
+    <!--
       重要文件配置
       1、路径：.vscode/settings.json
         - customCollectionJsonPaths 配置 iconify 信息
@@ -39,7 +37,6 @@ import IconFont from './components/IconFont.vue';
         - iconify.prefix 前缀，默认使用iconfont项目设置里的前缀（如果项目配置的前缀最后一个字符是非）
       3、路径：src/type.d.ts 和 src/mian.ts
         - 配置 .vue 文件，在绑定元素时输入 icons. 有对应的提示信息
-
      -->
   </div>
   <HelloWorld msg="Vite + Vue" />

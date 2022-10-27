@@ -27,7 +27,7 @@
     },
     "iconify": {
       "enable": true,
-      "prefix": "icons"
+      "prefix": "icon"
     }
   }
 }

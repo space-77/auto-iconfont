@@ -6,7 +6,7 @@ import icons from './assets/iconfont'
 const app = createApp(App)
 app.mixin({
   computed: {
-    icons: () => icons
+    icon: () => icons
   }
 })
 
