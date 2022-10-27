@@ -26,7 +26,9 @@ class Config {
   }
 
   get canRename() {
-    return this.iconify.enable && this.settings.prefix !== this.iconify.prefix + this.iconify.delimiter
+    const { iconify, settings } = this
+    const { enable, prefix, delimiter } = iconify
+    return enable && settings.prefix !== `${prefix}${delimiter}`
   }
 }
 
@@ -77,7 +79,7 @@ function formatPath(outDir: string) {
 async function getIconfontCss(fontFamilyClass: Record<string, string>) {
   try {
     const { url, iconTTFAddress, iconCssPath, iconify, settings } = config
-    const { enable, prefix, delimiter } = iconify
+    const { prefix, delimiter } = iconify
 
     const { data } = await axios.get<string>(`${url}.css`)
     const cssJson = css2json(data) as Record<string, Record<string, string>>
@@ -91,7 +93,7 @@ async function getIconfontCss(fontFamilyClass: Record<string, string>) {
         Object.assign(cssValue, values)
         cssName = className
       } else if (config.canRename) {
-        // 开启 iconify，并且 iconfont 的 prefix 不等于 项目上的prefix，即需要修改 css 文件的icon类名
+        // 在开启 iconify，并且 iconfont 的 prefix 不等于 项目上的prefix，即需要修改 css 文件的icon类名
         cssName = cssName.replace(new RegExp(`^\.${settings.prefix}`), `.${prefix + delimiter}`)
       }
 
@@ -120,6 +122,7 @@ async function getIconJsCode() {
     const filePath = path.join(config.outDir, 'iconfont.js')
     let content = `/* eslint-disable */\r\n${data}`
     if (config.canRename) {
+      // 在开启 iconify，并且 iconfont 的 prefix 不等于 项目上的prefix，即需要修改 iconfont.js 文件的id名
       const prefixReg = new RegExp(`\\sid="${settings.prefix}`, 'g')
       content = content.replace(prefixReg, ` id="${prefix + delimiter}`)
     }
@@ -218,14 +221,16 @@ async function getIconInfo() {
 
   // 处理 Iconify 的 Json 数据
   if (enable) {
+    let { delimiter } = iconify
     if (!prefix) {
+      
       iconify.prefix =
         css_prefix_text.replace(/(-|_)$/, str => {
-          iconify.delimiter = str
+          delimiter = str
           return ''
         }) || 'icon'
-      iconify.delimiter = !iconify.delimiter ? '-' : iconify.delimiter
     }
+    iconify.delimiter = !delimiter ? '-' : delimiter
 
     config.settings.prefix = css_prefix_text
 

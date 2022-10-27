@@ -44,7 +44,7 @@ pnpm icon-build
 !['renderings.png'](https://s1.ax1x.com/2022/10/27/xhENlR.png)
 ### 配合 vscode 插件 Iconify IntelliSense 使用效果
 !['renderings-iconify.png'](https://s1.ax1x.com/2022/10/27/xhA2ZT.png)
-
+[例子](https://github.com/space-77/auto-iconfont/tree/master/examples)
 ### 配置 iconfont 信息
 
 ```javascript
