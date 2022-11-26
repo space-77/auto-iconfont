@@ -94,7 +94,7 @@ export default class IconFont {
   getChromePath() {
     const { chrome, chromium, chromeCanary } = chromePaths
     const chromePath = chrome || getEdgePath() || chromium || chromeCanary
-    if (chromePath) {
+    if (!chromePath) {
       log.error('没找到 chrome 或 chromium内核 的浏览器，请安装 chrome 或 chromium内核 的浏览器后重试')
       throw new Error("")
     }
