@@ -10,8 +10,7 @@ const css2json = require('css2json')
 class Config {
   url = ''
   outDir = './iconfont'
-  settings = { prefix: '' }
-  iconify = { enable: false, prefix: '', delimiter: '' }
+  iconify = { enable: false, prefix: '' }
   language: 'js' | 'ts' = 'js'
   get iconTTFPath() {
     return path.join(this.outDir, 'iconfont.ttf')
@@ -23,12 +22,6 @@ class Config {
 
   get iconCssPath() {
     return path.join(this.outDir, 'iconfont.css')
-  }
-
-  get canRename() {
-    const { iconify, settings } = this
-    const { enable, prefix, delimiter } = iconify
-    return enable && settings.prefix !== `${prefix}${delimiter}`
   }
 }
 
@@ -78,8 +71,7 @@ function formatPath(outDir: string) {
 
 async function getIconfontCss(fontFamilyClass: Record<string, string>) {
   try {
-    const { url, iconTTFAddress, iconCssPath, iconify, settings } = config
-    const { prefix, delimiter } = iconify
+    const { url, iconTTFAddress, iconCssPath } = config
 
     const { data } = await axios.get<string>(`${url}.css`)
     const cssJson = css2json(data) as Record<string, Record<string, string>>
@@ -92,9 +84,6 @@ async function getIconfontCss(fontFamilyClass: Record<string, string>) {
       } else if (cssName === '.iconfont') {
         Object.assign(cssValue, values)
         cssName = className
-      } else if (config.canRename) {
-        // 在开启 iconify，并且 iconfont 的 prefix 不等于 项目上的prefix，即需要修改 css 文件的icon类名
-        cssName = cssName.replace(new RegExp(`^\.${settings.prefix}`), `.${prefix + delimiter}`)
       }
 
       const newCss = Object.entries(cssValue)
@@ -115,17 +104,9 @@ async function getIconfontCss(fontFamilyClass: Record<string, string>) {
 
 async function getIconJsCode() {
   try {
-    const { settings, iconify } = config
-    const { prefix, delimiter } = iconify
-
     const { data } = await axios.get<string>(`${config.url}.js`)
     const filePath = path.join(config.outDir, 'iconfont.js')
     let content = `/* eslint-disable */\r\n${data}`
-    if (config.canRename) {
-      // 在开启 iconify，并且 iconfont 的 prefix 不等于 项目上的prefix，即需要修改 iconfont.js 文件的id名
-      const prefixReg = new RegExp(`\\sid="${settings.prefix}`, 'g')
-      content = content.replace(prefixReg, ` id="${prefix + delimiter}`)
-    }
     log.info('正在创建 iconfont.js 文件')
     fs.writeFileSync(filePath, content)
   } catch (error) {
@@ -221,18 +202,9 @@ async function getIconInfo() {
 
   // 处理 Iconify 的 Json 数据
   if (enable) {
-    let { delimiter } = iconify
     if (!prefix) {
-      
-      iconify.prefix =
-        css_prefix_text.replace(/(-|_)$/, str => {
-          delimiter = str
-          return ''
-        }) || 'icon'
+      iconify.prefix = css_prefix_text.replace(/(-|_)$/, '') || 'icon'
     }
-    iconify.delimiter = !delimiter ? '-' : delimiter
-
-    config.settings.prefix = css_prefix_text
 
     const prefixReg = new RegExp(`^${css_prefix_text}`)
     const svgDatas = (await getSvgData()).map(i => {
@@ -244,12 +216,11 @@ async function getIconInfo() {
   }
 
   let contentFont = ''
-  const newPrefix = enable ? iconify.prefix + iconify.delimiter : css_prefix_text
   glyphs.forEach(item => {
     const { font_class, name } = item
     // 处理 ts 文件信息
     const iconName = font_class.replace(/-/g, '_') // .toUpperCase()
-    const typeVlaue = `'${newPrefix}${font_class}'`
+    const typeVlaue = `'${css_prefix_text}${font_class}'`
     contentFont += `
     /**
      * @name ${font_class}
@@ -281,10 +252,7 @@ async function getConfig() {
   if (prefix !== '' && !/^[a-zA-Z](\w|-)*$/.test(prefix)) throw new Error(errMsg)
 
   config.iconify.enable = enable
-  config.iconify.prefix = prefix.replace(/(-|_)$/, (str: string) => {
-    config.iconify.delimiter = str
-    return ''
-  })
+  config.iconify.prefix = prefix.replace(/(-|_)$/, '')
 
   if (!judgeIsVaildUrl(url)) {
     if (!projectId) throw new Error('项目id不存在！')
